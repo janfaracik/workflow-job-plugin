@@ -25,13 +25,25 @@ THE SOFTWARE.
 
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout" xmlns:t="/lib/hudson">
-    <l:layout title="${it.fullDisplayName} ${%Changes}">
-        <st:include page="sidepanel.jelly"/>
-        <l:main-panel>
-            <t:buildCaption>${%Changes}</t:buildCaption>
-            <j:forEach var="changeSet" items="${it.changeSets}">
-                <st:include page="index.jelly" it="${changeSet}"/>
-            </j:forEach>
-        </l:main-panel>
-    </l:layout>
+    <l:userExperimentalFlag var="newBuildPage" flagClassName="jenkins.model.experimentalflags.NewBuildPageUserExperimentalFlag" />
+
+    <!-- TODO - This entire file can be removed once baseline is higher than 2.537 -->
+    <!-- See https://github.com/jenkinsci/jenkins/pull/11277 -->
+
+    <j:choose>
+        <j:when test="${newBuildPage}">
+            <st:include page="changes.jelly" class="hudson.model.AbstractBuild" />
+        </j:when>
+        <j:otherwise>
+            <l:layout title="${it.fullDisplayName} ${%Changes}">
+                <st:include page="sidepanel.jelly"/>
+                <l:main-panel>
+                    <t:buildCaption>${%Changes}</t:buildCaption>
+                    <j:forEach var="changeSet" items="${it.changeSets}">
+                        <st:include page="index.jelly" it="${changeSet}"/>
+                    </j:forEach>
+                </l:main-panel>
+            </l:layout>
+        </j:otherwise>
+    </j:choose>
 </j:jelly>
